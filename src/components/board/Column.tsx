@@ -26,7 +26,7 @@ export default function Column({ column, isOwner }: { column: ColumnType; isOwne
   }
 
   return (
-    <div className="shrink-0 w-72 bg-slate-100 rounded-xl p-3 flex flex-col gap-2">
+    <div className="shrink-0 w-64 md:w-72 bg-slate-100 rounded-xl p-3 flex flex-col gap-2">
       <div className="flex items-center justify-between px-1">
         <h3 className="font-semibold text-slate-700 text-sm">{column.title}</h3>
         <span className="text-xs text-slate-400">{column.cards.length}</span>
