@@ -21,6 +21,7 @@ import { useBoardStore, type Card } from '@/stores/boardStore'
 import { getPositionBetween, needsRebalance } from '@/lib/utils/fractional-index'
 import { createClient } from '@/lib/supabase/client'
 import { Switch } from '@/components/ui/switch'
+import ShareModal from './ShareModal'
 
 export default function BoardClient({ boardId, isOwner }: { boardId: string; isOwner: boolean }) {
   const { board, columns, loading, fetchBoardData, addColumn, reorderCardsDuringDrag, moveCard, beginDrag, togglePublic } =
@@ -28,6 +29,7 @@ export default function BoardClient({ boardId, isOwner }: { boardId: string; isO
   const [addingCol, setAddingCol] = useState(false)
   const [colTitle, setColTitle] = useState('')
   const [activeCard, setActiveCard] = useState<Card | null>(null)
+  const [shareOpen, setShareOpen] = useState(false)
 
   const sensors = useSensors(
     ...(isOwner ? [
@@ -127,12 +129,11 @@ export default function BoardClient({ boardId, isOwner }: { boardId: string; isO
       <div className="flex flex-col h-screen">
         <header className="flex items-center justify-between px-4 py-3 md:px-6 md:py-4 border-b bg-white">
           <h1 className="text-lg font-bold text-slate-800">{board.title}</h1>
-          {isOwner && (
-            <div className="flex items-center gap-2 text-sm text-slate-500">
-              <span>Public</span>
-              <Switch checked={board.is_public} onCheckedChange={togglePublic} />
-            </div>
-          )}
+            {isOwner && (
+              <Button variant="outline" size="sm" onClick={() => setShareOpen(true)}>
+                Paylaş
+              </Button>
+            )}
         </header>
         
         <div className="flex-1 overflow-x-auto p-4 md:p-6">
@@ -187,6 +188,7 @@ export default function BoardClient({ boardId, isOwner }: { boardId: string; isO
           </div>
         ) : null}
       </DragOverlay>
+      <ShareModal boardId={board.id} open={shareOpen} onOpenChange={setShareOpen} />
     </DndContext>
   )
 }

@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      board_members: {
+        Row: {
+          board_id: string | null
+          created_at: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          board_id?: string | null
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          board_id?: string | null
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "board_members_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "board_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       boards: {
         Row: {
           created_at: string
@@ -36,7 +72,15 @@ export type Database = {
           title?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "boards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cards: {
         Row: {
@@ -151,18 +195,21 @@ export type Database = {
         Row: {
           bio: string | null
           created_at: string | null
+          email: string | null
           full_name: string | null
           id: string
         }
         Insert: {
           bio?: string | null
           created_at?: string | null
+          email?: string | null
           full_name?: string | null
           id: string
         }
         Update: {
           bio?: string | null
           created_at?: string | null
+          email?: string | null
           full_name?: string | null
           id?: string
         }

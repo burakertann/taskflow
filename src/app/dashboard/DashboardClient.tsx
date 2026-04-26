@@ -19,6 +19,7 @@ import {
 import SignOutButton from '@/components/shared/SignOutButton'
 import { useBoardsStore } from '@/stores/boardsStore'
 import { useProfileStore } from '@/stores/profileStore'
+import Link from 'next/link'
 
 export default function DashboardClient({ user }: { user: User }) {
   const router = useRouter()
@@ -29,7 +30,7 @@ export default function DashboardClient({ user }: { user: User }) {
   const { profile, fetchProfile, loading: profileLoading } = useProfileStore()
 
   useEffect(() => {
-    fetchBoards()
+    fetchBoards(user.id)
   }, [fetchBoards])
   
   useEffect(() => {
@@ -80,6 +81,9 @@ export default function DashboardClient({ user }: { user: User }) {
                 </form>
               </DialogContent>
             </Dialog>
+            <Link href="/profile">
+              <Button variant="outline">Profilim</Button>
+            </Link>
             <SignOutButton />
           </div>
         </div>
@@ -112,6 +116,9 @@ export default function DashboardClient({ user }: { user: User }) {
               <CardFooter className="flex justify-between items-center">
                 <span className="text-xs text-slate-400">
                   {format(new Date(board.created_at), 'd MMM yyyy', { locale: tr })}
+                </span>
+                <span className="text-xs text-slate-500 font-medium">
+                  {board.profiles?.full_name ?? board.profiles?.email ?? ''}
                 </span>
                 <Button
                   variant="ghost"

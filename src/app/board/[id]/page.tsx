@@ -17,9 +17,18 @@ export default async function BoardPage({ params }: { params: Promise<{ id: stri
 
   if (!board) notFound()
 
-  const canAccess = board.user_id === user.id || board.is_public
   const isOwner = board.user_id === user.id
-  if (!canAccess) notFound()
+
+  if (!isOwner) {
+    const { data: membership } = await supabase
+      .from('board_members')
+      .select('id')
+      .eq('board_id', id)
+      .eq('user_id', user.id)
+      .single()
+
+    if (!membership && !board.is_public) notFound()
+  }
 
   return <BoardClient boardId={id} isOwner={isOwner} />
 }

@@ -31,7 +31,7 @@ export default function CardItem({ card , isOwner}: { card: Card ; isOwner: bool
 
   return (
     <>
-"   <div
+    <div
       ref={setNodeRef}
       style={style}
       {...attributes}
