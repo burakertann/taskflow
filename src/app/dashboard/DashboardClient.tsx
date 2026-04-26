@@ -85,7 +85,11 @@ export default function DashboardClient({ user }: { user: User }) {
         </div>
 
         {loading && (
-          <p className="text-slate-400">Yükleniyor...</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-28 bg-slate-100 rounded-xl animate-pulse" />
+            ))}
+          </div>
         )}
 
         {!loading && boards.length === 0 && (

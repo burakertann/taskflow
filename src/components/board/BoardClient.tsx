@@ -94,11 +94,19 @@ export default function BoardClient({ boardId, isOwner }: { boardId: string; isO
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-400">
-        Yükleniyor...
+      <div className="flex gap-4 p-6 overflow-hidden">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="shrink-0 w-64 md:w-72 bg-slate-100 rounded-xl p-3 space-y-2">
+            <div className="h-5 bg-slate-200 rounded animate-pulse w-1/2" />
+            {[...Array(3)].map((_, j) => (
+              <div key={j} className="h-16 bg-white rounded-lg animate-pulse" />
+            ))}
+          </div>
+        ))}
       </div>
     )
   }
+
 
   if (!board) {
     return (
