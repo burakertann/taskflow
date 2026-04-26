@@ -3,6 +3,8 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { Card } from '@/stores/boardStore'
+import { useState } from 'react'
+import CardDetailDialog from './CardDetailDialog'
 
 const priorityStyles: Record<string, string> = {
   High: 'bg-red-100 text-red-700',
@@ -20,13 +22,16 @@ export default function CardItem({ card }: { card: Card }) {
     isDragging,
   } = useSortable({ id: card.id })
 
+  const [open, setOpen] = useState(false)
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   }
 
   return (
-    <div
+    <>
+"   <div
       ref={setNodeRef}
       style={style}
       {...attributes}
@@ -34,6 +39,7 @@ export default function CardItem({ card }: { card: Card }) {
       className={`bg-white rounded-lg p-3 shadow-sm border border-slate-200 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow ${
         isDragging ? 'opacity-40' : ''
       }`}
+      onClick={() => { if (!isDragging) setOpen(true) }}
     >
       <p className="text-sm font-medium text-slate-800">{card.title}</p>
       {card.priority && (
@@ -46,5 +52,9 @@ export default function CardItem({ card }: { card: Card }) {
         </span>
       )}
     </div>
+    <CardDetailDialog card={card} open={open} onOpenChange={setOpen} />"
+    </>
+
+
   )
 }

@@ -19,6 +19,7 @@ interface BoardState {
   reorderCardsDuringDrag: (activeCardId: string, overId: string) => void
   moveCard: (cardId: string, targetColumnId: string, newPosition: number) => Promise<void>
   beginDrag: () => void
+  updateCard: (cardId: string, fields: Partial<Card>) => Promise<void>
 }
 
 export const useBoardStore = create<BoardState>((set, get) => ({
@@ -209,5 +210,30 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   beginDrag() {
     set({dragSnapshot: structuredClone(get().columns)})
   },
+
+  async updateCard(cardId, fields) {
+    const snapshot = structuredClone(get().columns)
+
+    set({
+      columns: get().columns.map((col) => ({
+        ...col,
+        cards: col.cards.map((card) =>
+          card.id === cardId ? { ...card, ...fields } : card
+        ),
+      })),
+    })
+
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('cards')
+      .update(fields)
+      .eq('id', cardId)
+
+    if (error) {
+      set({ columns: snapshot })
+      toast.error('Kart güncellenemedi')
+    }
+  },
+
 
 }))
