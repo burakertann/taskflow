@@ -145,7 +145,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      rebalance_column: { Args: { col_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

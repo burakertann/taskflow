@@ -17,6 +17,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Column from './Column'
 import { useBoardStore, type Card } from '@/stores/boardStore'
+import { getPositionBetween, needsRebalance } from '@/lib/utils/fractional-index'
+import { createClient } from '@/lib/supabase/client'
 
 export default function BoardClient({ boardId }: { boardId: string }) {
   const { board, columns, loading, fetchBoardData, addColumn, reorderCardsDuringDrag, moveCard, beginDrag } =
@@ -49,7 +51,7 @@ export default function BoardClient({ boardId }: { boardId: string }) {
     reorderCardsDuringDrag(activeId, overId)
   }
 
-  function onDragEnd(event: DragEndEvent) {
+  async function onDragEnd(event: DragEndEvent) {
     const { active, over } = event
     setActiveCard(null)
 
@@ -66,12 +68,14 @@ export default function BoardClient({ boardId }: { boardId: string }) {
     const prevPos = targetCol.cards[cardIndex - 1]?.position ?? null
     const nextPos = targetCol.cards[cardIndex + 1]?.position ?? null
 
-    let newPosition: number
-    if (prevPos === null && nextPos === null) newPosition = 1000
-    else if (prevPos === null) newPosition = nextPos! - 1000
-    else if (nextPos === null) newPosition = prevPos + 1000
-    else newPosition = (prevPos + nextPos) / 2
+    const newPosition = getPositionBetween(prevPos,nextPos)
 
+    if (prevPos !== null && nextPos !== null && needsRebalance(prevPos,nextPos)){
+       const supabase = createClient()
+       await supabase.rpc('rebalance_column', { col_id: targetCol.id })
+       await fetchBoardData(boardId)
+       return
+    }
     moveCard(activeId, targetCol.id, newPosition)
   }
 
