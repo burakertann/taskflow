@@ -19,7 +19,7 @@ import Column from './Column'
 import { useBoardStore, type Card } from '@/stores/boardStore'
 
 export default function BoardClient({ boardId }: { boardId: string }) {
-  const { board, columns, loading, fetchBoardData, addColumn, reorderCardsDuringDrag, moveCard } =
+  const { board, columns, loading, fetchBoardData, addColumn, reorderCardsDuringDrag, moveCard, beginDrag } =
     useBoardStore()
   const [addingCol, setAddingCol] = useState(false)
   const [colTitle, setColTitle] = useState('')
@@ -34,6 +34,7 @@ export default function BoardClient({ boardId }: { boardId: string }) {
   }, [boardId, fetchBoardData])
 
   function onDragStart(event: DragStartEvent) {
+    beginDrag()
     const cardId = String(event.active.id)
     const found = columns.flatMap((c) => c.cards).find((card) => card.id === cardId)
     setActiveCard(found ?? null)

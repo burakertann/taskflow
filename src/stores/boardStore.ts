@@ -12,16 +12,19 @@ interface BoardState {
   board: Board | null
   columns: Column[]
   loading: boolean
+  dragSnapshot : Column[] | null
   fetchBoardData: (boardId: string) => Promise<void>
   addColumn: (boardId: string, title: string) => Promise<void>
   addCard: (columnId: string, title: string) => Promise<void>
   reorderCardsDuringDrag: (activeCardId: string, overId: string) => void
   moveCard: (cardId: string, targetColumnId: string, newPosition: number) => Promise<void>
+  beginDrag: () => void
 }
 
 export const useBoardStore = create<BoardState>((set, get) => ({
   board: null,
   columns: [],
+  dragSnapshot: null,
   loading: false,
 
   async fetchBoardData(boardId) {
@@ -51,7 +54,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   },
 
   async addColumn(boardId, title) {
-    const snapshot = get().columns
+    const snapshot = structuredClone(get().columns)
     const maxPos = snapshot.length > 0 ? Math.max(...snapshot.map((c) => c.position)) : 0
     const position = maxPos + 1000
 
@@ -87,7 +90,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   },
 
   async addCard(columnId, title) {
-    const snapshot = get().columns
+    const snapshot = structuredClone(get().columns)
     const column = snapshot.find((c) => c.id === columnId)
     if (!column) return
 
@@ -174,7 +177,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   },
 
   async moveCard(cardId, targetColumnId, newPosition) {
-    const snapshot = get().columns
+    const snapshot = structuredClone(get().columns)
 
     set({
       columns: snapshot.map((col) => ({
@@ -196,8 +199,15 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       .eq('id', cardId)
 
     if (error) {
-      set({ columns: snapshot })
+      set({columns: get().dragSnapshot!, dragSnapshot: null})
       toast.error('Kart taşınamadı, geri alındı')
+    }else{
+      set({dragSnapshot: null})
     }
   },
+
+  beginDrag() {
+    set({dragSnapshot: structuredClone(get().columns)})
+  },
+
 }))

@@ -44,7 +44,6 @@ export const useBoardsStore = create<BoardsState>((set, get) => ({
       created_at: new Date().toISOString(),
     }
     set({ boards: [optimistic, ...snapshot] })
-
     const supabase = createClient()
     const { data, error } = await supabase
       .from('boards')
@@ -57,7 +56,6 @@ export const useBoardsStore = create<BoardsState>((set, get) => ({
       toast.error('Pano oluşturulamadı')
       return
     }
-
     set({ boards: get().boards.map((b) => (b.id === tempId ? data : b)) })
     toast.success('Pano oluşturuldu')
   },
