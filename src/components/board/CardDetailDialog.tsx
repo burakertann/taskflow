@@ -14,9 +14,10 @@ interface Props {
   card: Card
   open: boolean
   onOpenChange: (open: boolean) => void
+  isOwner: boolean
 }
 
-export default function CardDetailDialog({ card, open, onOpenChange }: Props) {
+export default function CardDetailDialog({ card, open, onOpenChange, isOwner }: Props) {
     const [title, setTitle] = useState(card.title)
     const [description, setDescription] = useState(card.description ?? '')
     const { updateCard } = useBoardStore()
@@ -44,6 +45,7 @@ export default function CardDetailDialog({ card, open, onOpenChange }: Props) {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     className="text-lg font-bold border-none shadow-none px-0 focus-visible:ring-0"
+                    readOnly={!isOwner}
                 />
                 </DialogTitle>
             </DialogHeader>
@@ -56,6 +58,7 @@ export default function CardDetailDialog({ card, open, onOpenChange }: Props) {
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Açıklama ekle..."
                     rows={4}
+                    readOnly={!isOwner}
                 />
                 </div>
 
@@ -64,6 +67,7 @@ export default function CardDetailDialog({ card, open, onOpenChange }: Props) {
                 <Select
                 value={card.priority ?? 'Medium'}
                 onValueChange={(value) => updateCard(card.id, { priority: value as 'Low' | 'Medium' | 'High' })}
+                disabled = {!isOwner}
                 >
                 <SelectTrigger className="w-36">
                     <SelectValue />

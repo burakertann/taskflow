@@ -10,7 +10,7 @@ import CardItem from './CardItem'
 import { useBoardStore } from '@/stores/boardStore'
 import type { Column as ColumnType } from '@/stores/boardStore'
 
-export default function Column({ column }: { column: ColumnType }) {
+export default function Column({ column, isOwner }: { column: ColumnType; isOwner: boolean }) {
   const { addCard } = useBoardStore()
   const [adding, setAdding] = useState(false)
   const [title, setTitle] = useState('')
@@ -38,12 +38,13 @@ export default function Column({ column }: { column: ColumnType }) {
       >
         <div ref={setNodeRef} className="flex flex-col gap-2 min-h-5">
           {column.cards.map((card) => (
-            <CardItem key={card.id} card={card} />
+            <CardItem key={card.id} card={card} isOwner={isOwner} />
           ))}
         </div>
       </SortableContext>
 
-      {adding ? (
+      {isOwner && (
+        adding ? (
         <form onSubmit={handleAddCard} className="flex flex-col gap-2 mt-1">
           <Input
             autoFocus
@@ -76,7 +77,8 @@ export default function Column({ column }: { column: ColumnType }) {
           <Plus className="w-4 h-4 mr-1" />
           Kart ekle
         </Button>
-      )}
+      ))
+    }
     </div>
   )
 }

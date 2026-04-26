@@ -18,7 +18,8 @@ export default async function BoardPage({ params }: { params: Promise<{ id: stri
   if (!board) notFound()
 
   const canAccess = board.user_id === user.id || board.is_public
+  const isOwner = board.user_id === user.id
   if (!canAccess) notFound()
 
-  return <BoardClient boardId={id} />
+  return <BoardClient boardId={id} isOwner={isOwner} />
 }

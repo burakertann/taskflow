@@ -19,16 +19,17 @@ import Column from './Column'
 import { useBoardStore, type Card } from '@/stores/boardStore'
 import { getPositionBetween, needsRebalance } from '@/lib/utils/fractional-index'
 import { createClient } from '@/lib/supabase/client'
+import { Switch } from '@/components/ui/switch'
 
-export default function BoardClient({ boardId }: { boardId: string }) {
-  const { board, columns, loading, fetchBoardData, addColumn, reorderCardsDuringDrag, moveCard, beginDrag } =
+export default function BoardClient({ boardId, isOwner }: { boardId: string; isOwner: boolean }) {
+  const { board, columns, loading, fetchBoardData, addColumn, reorderCardsDuringDrag, moveCard, beginDrag, togglePublic } =
     useBoardStore()
   const [addingCol, setAddingCol] = useState(false)
   const [colTitle, setColTitle] = useState('')
   const [activeCard, setActiveCard] = useState<Card | null>(null)
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+    ...(isOwner ? [useSensor(PointerSensor, { activationConstraint: { distance: 8 } })] : [])
   )
 
   useEffect(() => {
@@ -112,17 +113,23 @@ export default function BoardClient({ boardId }: { boardId: string }) {
       onDragEnd={onDragEnd}
     >
       <div className="flex flex-col h-screen">
-        <header className="flex items-center gap-4 px-6 py-4 border-b bg-white">
+        <header className="flex items-center justify-between px-6 py-4 border-b bg-white">
           <h1 className="text-lg font-bold text-slate-800">{board.title}</h1>
+          {isOwner && (
+            <div className="flex items-center gap-2 text-sm text-slate-500">
+              <span>Public</span>
+              <Switch checked={board.is_public} onCheckedChange={togglePublic} />
+            </div>
+          )}
         </header>
-
+        
         <div className="flex-1 overflow-x-auto p-6">
           <div className="flex gap-4 items-start h-full">
             {columns.map((column) => (
-              <Column key={column.id} column={column} />
+              <Column key={column.id} column={column} isOwner = {isOwner}/>
             ))}
-
-            {addingCol ? (
+          {isOwner && (
+            addingCol ? (
               <form
                 onSubmit={handleAddColumn}
                 className="shrink-0 w-72 bg-slate-100 rounded-xl p-3 flex flex-col gap-2"
@@ -156,7 +163,7 @@ export default function BoardClient({ boardId }: { boardId: string }) {
                 <Plus className="w-4 h-4" />
                 Sütun ekle
               </button>
-            )}
+            ))}
           </div>
         </div>
       </div>

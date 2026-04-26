@@ -20,6 +20,7 @@ interface BoardState {
   moveCard: (cardId: string, targetColumnId: string, newPosition: number) => Promise<void>
   beginDrag: () => void
   updateCard: (cardId: string, fields: Partial<Card>) => Promise<void>
+  togglePublic: () => Promise<void>
 }
 
 export const useBoardStore = create<BoardState>((set, get) => ({
@@ -234,6 +235,22 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       toast.error('Kart güncellenemedi')
     }
   },
+  async togglePublic() {
+    const board = get().board
+    if (!board) return
 
+    const newValue = !board.is_public
+    set({ board: { ...board, is_public: newValue } })
 
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('boards')
+      .update({ is_public: newValue })
+      .eq('id', board.id)
+
+    if (error) {
+      set({ board })
+      toast.error('Güncelleme başarısız')
+    }
+  },
 }))

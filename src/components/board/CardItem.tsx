@@ -12,7 +12,7 @@ const priorityStyles: Record<string, string> = {
   Low: 'bg-green-100 text-green-700',
 }
 
-export default function CardItem({ card }: { card: Card }) {
+export default function CardItem({ card , isOwner}: { card: Card ; isOwner: boolean}) {
   const {
     attributes,
     listeners,
@@ -52,9 +52,7 @@ export default function CardItem({ card }: { card: Card }) {
         </span>
       )}
     </div>
-    <CardDetailDialog card={card} open={open} onOpenChange={setOpen} />"
+    <CardDetailDialog card={card} open={open} onOpenChange={setOpen} isOwner={isOwner} />
     </>
-
-
   )
 }
