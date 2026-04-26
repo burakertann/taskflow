@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dialog'
 import SignOutButton from '@/components/shared/SignOutButton'
 import { useBoardsStore } from '@/stores/boardsStore'
+import { useProfileStore } from '@/stores/profileStore'
 
 export default function DashboardClient({ user }: { user: User }) {
   const router = useRouter()
@@ -25,10 +26,15 @@ export default function DashboardClient({ user }: { user: User }) {
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState('')
   const [creating, setCreating] = useState(false)
+  const { profile, fetchProfile, loading: profileLoading } = useProfileStore()
 
   useEffect(() => {
     fetchBoards()
   }, [fetchBoards])
+  
+  useEffect(() => {
+    fetchProfile(user.id)
+  }, [user.id])
 
   async function handleCreate(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -46,7 +52,7 @@ export default function DashboardClient({ user }: { user: User }) {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Panolarım</h1>
-            <p className="text-sm text-slate-500">{user.email}</p>
+            {!profileLoading && <p className="text-sm text-slate-500">{profile?.full_name ?? user.email}</p>}
           </div>
           <div className="flex gap-2">
             <Dialog open={open} onOpenChange={setOpen}>

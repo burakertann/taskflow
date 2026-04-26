@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 export default function SignupPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
+  const [fullName, setFullName] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -19,7 +20,7 @@ export default function SignupPage() {
     setLoading(true)
 
     const supabase = createClient()
-    const { error } = await supabase.auth.signUp({ email, password })
+    const { error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } })
 
     if (error) {
       toast.error(error.message)
@@ -37,6 +38,13 @@ export default function SignupPage() {
         <h1 className="text-2xl font-bold">Kayıt Ol</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            type="text"
+            placeholder="Ad Soyad"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+          />
           <Input
             type="email"
             placeholder="E-posta"
