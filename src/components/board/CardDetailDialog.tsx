@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import type { Card } from '@/stores/boardStore'
-import { useDebounce } from 'use-debounce'
 import { useBoardStore } from '@/stores/boardStore'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatDistanceToNow } from 'date-fns'
@@ -29,11 +28,12 @@ export default function CardDetailDialog({ card, open, onOpenChange, isOwner}: P
     const { fetchComments, addComment, deleteComment, commentsByCard } = useCommentsStore()
     const { profile } = useProfileStore()
     const comments = commentsByCard[card.id] ?? []
-    const [debouncedTitle] = useDebounce(title, 500)
-    const [debouncedDescription] = useDebounce(description, 500)
     const [content, setContent] = useState('')
     const [currentUserId, setCurrentUserId] = useState<string | null>(null)
     const [confirmingDelete, setConfirmingDelete] = useState(false)
+    const [priority, setPriority] = useState(card.priority ?? 'Medium')
+    const [saving, setSaving] = useState(false)
+
 
     useEffect(() => {
     const supabase = createClient()
@@ -42,17 +42,13 @@ export default function CardDetailDialog({ card, open, onOpenChange, isOwner}: P
     })
     }, [])
 
-    useEffect(() => {
-    if (debouncedTitle !== card.title) {
-        updateCard(card.id, { title: debouncedTitle })
-    }
-    }, [debouncedTitle])
+    const hasChanges = title !== card.title || description !== (card.description ?? '') || priority !== (card.priority ?? 'Medium')
 
-    useEffect(() => {
-    if (debouncedDescription !== (card.description ?? '')) {
-        updateCard(card.id, { description: debouncedDescription })
+    async function handleSave() {
+        setSaving(true)
+        await updateCard(card.id, { title, description, priority: priority as 'Low' | 'Medium' | 'High' })
+        setSaving(false)
     }
-    }, [debouncedDescription])
 
     useEffect(() => {
         if (open) fetchComments(card.id)
@@ -86,9 +82,9 @@ export default function CardDetailDialog({ card, open, onOpenChange, isOwner}: P
                 <div>
                             <p className="text-xs text-slate-500 mb-1">Öncelik</p>
                             <Select
-                            value={card.priority ?? 'Medium'}
-                            onValueChange={(value) => updateCard(card.id, { priority: value as 'Low' | 'Medium' | 'High' })}
-                            disabled = {!isOwner}
+                            value={priority}
+                            onValueChange={(value) => setPriority(value)}
+                            disabled={!isOwner}
                             >
                             <SelectTrigger className="w-36">
                                 <SelectValue />
@@ -102,19 +98,14 @@ export default function CardDetailDialog({ card, open, onOpenChange, isOwner}: P
                             </div>
                             <div>
             {isOwner && (
-            confirmingDelete ? (
-                <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500">Emin misin?</span>
-                <button onClick={() => { deleteCard(card.id); onOpenChange(false) }} className="text-xs text-red-500 font-medium hover:text-red-700">Sil</button>
-                <button onClick={() => setConfirmingDelete(false)} className="text-xs text-slate-400 hover:text-slate-600">İptal</button>
-                </div>
-            ) : (
-                <button onClick={() => setConfirmingDelete(true)} className="text-xs text-red-400 hover:text-red-600">
-                Kartı sil
-                </button>
-            )
+            <button
+                onClick={handleSave}
+                disabled={!hasChanges || saving}
+                className="text-xs bg-slate-800 text-white px-3 py-1.5 rounded-md hover:bg-slate-700 disabled:opacity-50"
+            >
+                {saving ? 'Kaydediliyor...' : 'Kaydet'}
+            </button>
             )}
-
             <p className="text-xs text-slate-500 mb-2 mt-3">Yorumlar</p>
             
             <div className="space-y-2 mb-3 max-h-48 overflow-y-auto">

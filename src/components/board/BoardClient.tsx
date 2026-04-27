@@ -21,6 +21,8 @@ import { useBoardStore, type Card } from '@/stores/boardStore'
 import { getPositionBetween, needsRebalance } from '@/lib/utils/fractional-index'
 import { createClient } from '@/lib/supabase/client'
 import ShareModal from './ShareModal'
+import { useRouter } from 'next/navigation'
+import { ChevronLeft } from 'lucide-react'
 
 export default function BoardClient({ boardId, isOwner }: { boardId: string; isOwner: boolean }) {
   const { board, columns, loading, fetchBoardData, addColumn, reorderCardsDuringDrag, moveCard, beginDrag} =
@@ -29,7 +31,7 @@ export default function BoardClient({ boardId, isOwner }: { boardId: string; isO
   const [colTitle, setColTitle] = useState('')
   const [activeCard, setActiveCard] = useState<Card | null>(null)
   const [shareOpen, setShareOpen] = useState(false)
-
+  const router = useRouter()
   const sensors = useSensors(
     ...(isOwner ? [
       useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -127,7 +129,12 @@ export default function BoardClient({ boardId, isOwner }: { boardId: string; isO
     >
       <div className="flex flex-col h-screen">
         <header className="flex items-center justify-between px-4 py-3 md:px-6 md:py-4 border-b bg-white">
-          <h1 className="text-lg font-bold text-slate-800">{board.title}</h1>
+            <div className="flex items-center gap-2">
+              <button onClick={() => router.push('/dashboard')} className="text-slate-400 hover:text-slate-700 transition-colors">
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <h1 className="text-lg font-bold text-slate-800">{board.title}</h1>
+            </div>
             {isOwner && (
               <Button variant="outline" size="sm" onClick={() => setShareOpen(true)}>
                 Paylaş

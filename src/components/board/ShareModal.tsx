@@ -11,7 +11,8 @@ import { X } from 'lucide-react'
 interface Member {
   id: string
   user_id: string
-  profiles: { full_name: string | null; email: string | null } | null
+  full_name: string | null
+  email: string | null
 }
 
 interface Props {
@@ -25,14 +26,18 @@ export default function ShareModal({ boardId, open, onOpenChange }: Props) {
   const [loading, setLoading] = useState(false)
   const [members, setMembers] = useState<Member[]>([])
 
+  async function fetchMembers() {
+    console.log('fetchMembers START, boardId:', boardId)
+    const supabase = createClient()
+    const { data, error } = await supabase.rpc('get_board_members' as never, { p_board_id: boardId } as never)
+    console.log('fetchMembers END:', data, error)
+    setMembers(((data ?? []) as unknown) as Member[])
+  }
+
+
   useEffect(() => {
     if (!open) return
-    const supabase = createClient()
-    supabase
-      .from('board_members')
-      .select('id, user_id, profiles(full_name, email)')
-      .eq('board_id', boardId)
-      .then(({ data }) => setMembers((data as Member[]) ?? []))
+    fetchMembers()
   }, [open, boardId])
 
   async function handleShare(e: { preventDefault: () => void }) {
@@ -54,18 +59,16 @@ export default function ShareModal({ boardId, open, onOpenChange }: Props) {
       return
     }
 
-    const { data: newMember, error } = await supabase
+    const { error } = await supabase
       .from('board_members')
       .insert({ board_id: boardId, user_id: profile.id })
-      .select('id, user_id, profiles(full_name, email)')
-      .single()
 
     if (error) {
       toast.error('Paylaşım başarısız')
     } else {
       toast.success('Pano paylaşıldı')
-      setMembers((prev) => [...prev, newMember as Member])
       setEmail('')
+      await fetchMembers()
     }
     setLoading(false)
   }
@@ -94,7 +97,7 @@ export default function ShareModal({ boardId, open, onOpenChange }: Props) {
             {members.map((m) => (
               <div key={m.id} className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
                 <span className="text-sm text-slate-700">
-                  {m.profiles?.full_name ?? m.profiles?.email ?? 'Kullanıcı'}
+                  {m.full_name ?? m.email ?? 'Kullanıcı'}
                 </span>
                 <button onClick={() => handleRemove(m.id)} className="text-slate-400 hover:text-red-500 transition-colors">
                   <X className="w-4 h-4" />
