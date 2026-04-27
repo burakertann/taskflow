@@ -20,7 +20,8 @@ interface BoardState {
   moveCard: (cardId: string, targetColumnId: string, newPosition: number) => Promise<void>
   beginDrag: () => void
   updateCard: (cardId: string, fields: Partial<Card>) => Promise<void>
-  togglePublic: () => Promise<void>
+  deleteColumn: (columnId: string) => Promise<void>
+  deleteCard: (cardId: string) => Promise<void>
 }
 
 export const useBoardStore = create<BoardState>((set, get) => ({
@@ -235,22 +236,38 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       toast.error('Kart güncellenemedi')
     }
   },
-  async togglePublic() {
-    const board = get().board
-    if (!board) return
 
-    const newValue = !board.is_public
-    set({ board: { ...board, is_public: newValue } })
+  async deleteColumn(columnId) {
+    const snapshot = structuredClone(get().columns)
+    set({ columns: snapshot.filter((c) => c.id !== columnId) })
 
     const supabase = createClient()
-    const { error } = await supabase
-      .from('boards')
-      .update({ is_public: newValue })
-      .eq('id', board.id)
+    const { error } = await supabase.from('columns').delete().eq('id', columnId)
 
     if (error) {
-      set({ board })
-      toast.error('Güncelleme başarısız')
+      set({ columns: snapshot })
+      toast.error('Sütun silinemedi')
+    } else {
+      toast.success('Sütun silindi')
+    }
+  },
+  async deleteCard(cardId) {
+    const snapshot = structuredClone(get().columns)
+    set({
+      columns: snapshot.map((col) => ({
+        ...col,
+        cards: col.cards.filter((c) => c.id !== cardId),
+      })),
+    })
+
+    const supabase = createClient()
+    const { error } = await supabase.from('cards').delete().eq('id', cardId)
+
+    if (error) {
+      set({ columns: snapshot })
+      toast.error('Kart silinemedi')
+    } else {
+      toast.success('Kart silindi')
     }
   },
 }))

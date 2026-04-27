@@ -25,7 +25,7 @@ interface Props {
 export default function CardDetailDialog({ card, open, onOpenChange, isOwner}: Props) {
     const [title, setTitle] = useState(card.title)
     const [description, setDescription] = useState(card.description ?? '')
-    const { updateCard } = useBoardStore()
+    const { updateCard, deleteCard } = useBoardStore()
     const { fetchComments, addComment, deleteComment, commentsByCard } = useCommentsStore()
     const { profile } = useProfileStore()
     const comments = commentsByCard[card.id] ?? []
@@ -33,6 +33,7 @@ export default function CardDetailDialog({ card, open, onOpenChange, isOwner}: P
     const [debouncedDescription] = useDebounce(description, 500)
     const [content, setContent] = useState('')
     const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+    const [confirmingDelete, setConfirmingDelete] = useState(false)
 
     useEffect(() => {
     const supabase = createClient()
@@ -100,7 +101,21 @@ export default function CardDetailDialog({ card, open, onOpenChange, isOwner}: P
                             </Select>
                             </div>
                             <div>
-            <p className="text-xs text-slate-500 mb-2">Yorumlar</p>
+            {isOwner && (
+            confirmingDelete ? (
+                <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-500">Emin misin?</span>
+                <button onClick={() => { deleteCard(card.id); onOpenChange(false) }} className="text-xs text-red-500 font-medium hover:text-red-700">Sil</button>
+                <button onClick={() => setConfirmingDelete(false)} className="text-xs text-slate-400 hover:text-slate-600">İptal</button>
+                </div>
+            ) : (
+                <button onClick={() => setConfirmingDelete(true)} className="text-xs text-red-400 hover:text-red-600">
+                Kartı sil
+                </button>
+            )
+            )}
+
+            <p className="text-xs text-slate-500 mb-2 mt-3">Yorumlar</p>
             
             <div className="space-y-2 mb-3 max-h-48 overflow-y-auto">
                 {comments.map((comment) => (

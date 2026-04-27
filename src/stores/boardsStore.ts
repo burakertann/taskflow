@@ -42,8 +42,6 @@ export const useBoardsStore = create<BoardsState>((set, get) => ({
     }
 
     const memberBoardIds = membershipResult.data?.map((m) => m.board_id).filter((id): id is string => id !== null) ?? []
-    console.log('membershipResult:', membershipResult.data, membershipResult.error)
-    console.log('memberBoardIds:', memberBoardIds)
     let memberBoards: Board[] = []
     
 
@@ -53,7 +51,6 @@ export const useBoardsStore = create<BoardsState>((set, get) => ({
         .select('*, profiles(full_name, email)')
         .in('id', memberBoardIds)
       memberBoards = (data ?? []) as Board[]
-      console.log('memberBoards data:', data, 'error:', memberBoardsError)
     }
 
     const ownIds = new Set(ownResult.data?.map((b) => b.id))

@@ -20,11 +20,10 @@ import Column from './Column'
 import { useBoardStore, type Card } from '@/stores/boardStore'
 import { getPositionBetween, needsRebalance } from '@/lib/utils/fractional-index'
 import { createClient } from '@/lib/supabase/client'
-import { Switch } from '@/components/ui/switch'
 import ShareModal from './ShareModal'
 
 export default function BoardClient({ boardId, isOwner }: { boardId: string; isOwner: boolean }) {
-  const { board, columns, loading, fetchBoardData, addColumn, reorderCardsDuringDrag, moveCard, beginDrag, togglePublic } =
+  const { board, columns, loading, fetchBoardData, addColumn, reorderCardsDuringDrag, moveCard, beginDrag} =
     useBoardStore()
   const [addingCol, setAddingCol] = useState(false)
   const [colTitle, setColTitle] = useState('')

@@ -28,6 +28,7 @@ export default function DashboardClient({ user }: { user: User }) {
   const [title, setTitle] = useState('')
   const [creating, setCreating] = useState(false)
   const { profile, fetchProfile, loading: profileLoading } = useProfileStore()
+  const [deletingBoardId, setDeletingBoardId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchBoards(user.id)
@@ -120,16 +121,18 @@ export default function DashboardClient({ user }: { user: User }) {
                 <span className="text-xs text-slate-500 font-medium">
                   {board.profiles?.full_name ?? board.profiles?.email ?? ''}
                 </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    deleteBoard(board.id)
-                  }}
-                >
-                  <Trash2 className="w-4 h-4 text-red-400" />
-                </Button>
+                {board.user_id === user.id && (
+                  deletingBoardId === board.id ? (
+                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                      <button onClick={() => { deleteBoard(board.id); setDeletingBoardId(null) }} className="text-xs text-red-500 font-medium">Sil</button>
+                      <button onClick={() => setDeletingBoardId(null)} className="text-xs text-slate-400">İptal</button>
+                    </div>
+                  ) : (
+                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); setDeletingBoardId(board.id) }}>
+                      <Trash2 className="w-4 h-4 text-red-400" />
+                    </Button>
+                  )
+                )}
               </CardFooter>
             </Card>
           ))}

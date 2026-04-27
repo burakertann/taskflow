@@ -15,7 +15,7 @@ export default async function BoardPage({ params }: { params: Promise<{ id: stri
     .eq('id', id)
     .single()
 
-  if (!board) notFound()
+  if (!board) redirect('/dashboard')
 
   const isOwner = board.user_id === user.id
 
