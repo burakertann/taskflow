@@ -97,13 +97,26 @@ export default function CardDetailDialog({ card, open, onOpenChange, isOwner}: P
                             </div>
                             <div>
             {isOwner && (
-            <button
+            <div className="flex items-center gap-2">
+                <button
                 onClick={handleSave}
                 disabled={!hasChanges || saving}
                 className="text-xs bg-slate-800 text-white px-3 py-1.5 rounded-md hover:bg-slate-700 disabled:opacity-50"
-            >
+                >
                 {saving ? 'Kaydediliyor...' : 'Kaydet'}
-            </button>
+                </button>
+                {!confirmingDelete ? (
+                <button onClick={() => setConfirmingDelete(true)} className="text-xs text-red-400 hover:text-red-600">
+                    Kartı Sil
+                </button>
+                ) : (
+                <span className="flex items-center gap-1 text-xs">
+                    <button onClick={() => { deleteCard(card.id); onOpenChange(false) }} className="text-red-500 hover:text-red-700 font-medium">Sil</button>
+                    <span className="text-slate-300">/</span>
+                    <button onClick={() => setConfirmingDelete(false)} className="text-slate-400 hover:text-slate-600">İptal</button>
+                </span>
+                )}
+            </div>
             )}
             <p className="text-xs text-slate-500 mb-2 mt-3">Yorumlar</p>
             
