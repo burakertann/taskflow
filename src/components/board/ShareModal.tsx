@@ -27,11 +27,9 @@ export default function ShareModal({ boardId, open, onOpenChange }: Props) {
   const [members, setMembers] = useState<Member[]>([])
 
   async function fetchMembers() {
-    console.log('fetchMembers START, boardId:', boardId)
     const supabase = createClient()
-    const { data, error } = await supabase.rpc('get_board_members' as never, { p_board_id: boardId } as never)
-    console.log('fetchMembers END:', data, error)
-    setMembers(((data ?? []) as unknown) as Member[])
+    const { data } = await supabase.rpc('get_board_members', { p_board_id: boardId })
+    setMembers((data ?? []) as Member[])
   }
 
 

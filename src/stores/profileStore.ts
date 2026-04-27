@@ -35,21 +35,21 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
   },
 
   async updateProfile(fields) {
-    const snapshot = structuredClone(get().profile)
+    const current = get().profile
+    if (!current) return
 
-    set({ profile: { ...get().profile!, ...fields } })
+    const snapshot = structuredClone(current)
+    set({ profile: { ...current, ...fields } })
 
     const supabase = createClient()
-
     const { error } = await supabase
       .from('profiles')
       .update(fields)
-      .eq('id', get().profile!.id)
+      .eq('id', current.id)
 
     if (error) {
       set({ profile: snapshot })
       toast.error('Profil güncellenemedi')
     }
-
   },
 }))

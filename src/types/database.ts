@@ -221,6 +221,15 @@ export type Database = {
     }
     Functions: {
       rebalance_column: { Args: { col_id: string }; Returns: undefined }
+      get_board_members: {
+        Args: { p_board_id: string }
+        Returns: {
+          id: string
+          user_id: string
+          full_name: string | null
+          email: string | null
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

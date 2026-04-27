@@ -23,6 +23,7 @@ import { createClient } from '@/lib/supabase/client'
 import ShareModal from './ShareModal'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function BoardClient({ boardId, isOwner }: { boardId: string; isOwner: boolean }) {
   const { board, columns, loading, fetchBoardData, addColumn, reorderCardsDuringDrag, moveCard, beginDrag} =
@@ -80,10 +81,15 @@ export default function BoardClient({ boardId, isOwner }: { boardId: string; isO
 
     if (prevPos !== null && nextPos !== null && needsRebalance(prevPos,nextPos)){
        const supabase = createClient()
-       await supabase.rpc('rebalance_column', { col_id: targetCol.id })
+       const { error: rebalanceError } = await supabase.rpc('rebalance_column', { col_id: targetCol.id })
+       if (rebalanceError) {
+         toast.error('Sıralama güncellenemedi')
+         fetchBoardData(boardId)
+         return
+       }
        await fetchBoardData(boardId)
-       return
-    }
+        return
+     }
     moveCard(activeId, targetCol.id, newPosition)
   }
 
