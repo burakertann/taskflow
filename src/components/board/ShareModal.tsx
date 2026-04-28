@@ -73,7 +73,10 @@ export default function ShareModal({ boardId, open, onOpenChange }: Props) {
 
   async function handleRemove(memberId: string) {
     const supabase = createClient()
-    const { error } = await supabase.from('board_members').delete().eq('id', memberId)
+    const { error } = await supabase.rpc('remove_board_member', {
+      p_board_id: boardId,
+      p_member_id: memberId,
+    })
     if (error) {
       toast.error('Çıkarma başarısız')
     } else {

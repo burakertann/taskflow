@@ -230,6 +230,10 @@ export type Database = {
           email: string | null
         }[]
       }
+      remove_board_member: {
+        Args: { p_board_id: string; p_member_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
